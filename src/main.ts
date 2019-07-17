@@ -8,7 +8,8 @@ if (environment.production) {
   enableProdMode();
 }
 
-window['CESIUM_BASE_URL'] = './assets/cesium/';
+// If youre using Cesium version >= 1.42.0 add this line
+Cesium.buildModuleUrl.setBaseUrl('/assets/cesium/');
 
 platformBrowserDynamic().bootstrapModule(AppModule)
   .catch(err => console.error(err));
