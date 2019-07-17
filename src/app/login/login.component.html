@@ -1,0 +1,40 @@
+<div class="full-screen content-center dark-bulue">
+    <div class="wrapper">
+        <img class="logo" src="./assets/images/logo.png" alt="logo" />
+        <h1 class="login-title">Cesium大数据平台</h1>
+        <form class="login-form" nz-form [formGroup]="loginForm" (ngSubmit)="loginSubmitForm()">
+            <nz-form-item>
+                <nz-form-control nzErrorTip="用户名不能为空!">
+                    <nz-input-group [nzPrefix]="userPrefixTemplate">
+                        <input nz-input type="text" formControlName="userName" placeholder="用户名" />
+                    </nz-input-group>
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-control nzErrorTip="密码不能为空!">
+                    <nz-input-group [nzPrefix]="passwordPrefixTemplate">
+                        <input nz-input type="password" formControlName="userPassword" placeholder="密码" />
+                    </nz-input-group>
+                </nz-form-control>
+            </nz-form-item>
+            <nz-form-item>
+                <nz-form-control>
+                    <label nz-checkbox formControlName="remember">
+                        <span>记住密码</span>
+                    </label>
+                    <a class="login-form-forgot">忘记密码</a>
+                    <button class="login-form-button" nz-button [nzType]="'primary'">登录</button>
+                    或
+                    <a>现在注册</a>
+                </nz-form-control>
+            </nz-form-item>
+        </form>
+    </div>
+</div>
+
+<ng-template #userPrefixTemplate>
+    <i nz-icon nzType="user" nzTheme="outline"></i>
+</ng-template>
+<ng-template #passwordPrefixTemplate>
+    <i nz-icon nzType="lock" nzTheme="outline"></i>
+</ng-template>
