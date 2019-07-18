@@ -11,13 +11,17 @@ export class PlanesService {
             id: '1',
             position: Cesium.Cartesian3.fromDegrees(30, 30),
             name: 'Airbus a320',
-            image: 'https://cdn3.iconfinder.com/data/icons/airport-collection/100/23-512.png'
+            image: 'https://cdn3.iconfinder.com/data/icons/airport-collection/100/23-512.png',
+            scale: 0.1,
+            color: Cesium.Color.Green
         },
         {
             id: '2',
             position: Cesium.Cartesian3.fromDegrees(31, 31),
             name: 'Boeing 777',
-            image: 'https://cdn1.iconfinder.com/data/icons/fly-airbus-and-aeroplane/154/fly-air-plane-airbus-aeroplane-512.png'
+            image: 'https://cdn1.iconfinder.com/data/icons/fly-airbus-and-aeroplane/154/fly-air-plane-airbus-aeroplane-512.png',
+            scale: 0.1,
+            color: Cesium.Color.White
         }
     ];
 
