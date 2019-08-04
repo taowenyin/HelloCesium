@@ -26,8 +26,8 @@ export class CesiumComponent implements OnInit {
 
         // 初始化信息球
         this.cesiumView = new Cesium.Viewer('cesiumContainer', {
-            animation: false, // 是否创建动画小器件，左下角仪表
-            timeline: false, // 是否显示时间轴
+            animation: true, // 是否创建动画小器件，左下角仪表
+            timeline: true, // 是否显示时间轴
             sceneModePicker: false, // 是否显示3D/2D选择器
             baseLayerPicker: true, // 是否显示图层选择器
             geocoder: false, // 是否显示geocoder小器件，右上角查询按钮
