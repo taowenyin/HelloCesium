@@ -97,6 +97,13 @@ export class CesiumComponent implements OnInit {
         this.cesiumView.baseLayerPicker.viewModel.imageryProviderViewModels = providerViewModels;
         // 设置默认图层
         this.cesiumView.baseLayerPicker.viewModel.selectedImagery = providerViewModels[1];
+        // 开启太阳和月亮的日照
+        this.cesiumView.scene.globe.enableLighting = true;
+        // 启动信息球时间
+        this.cesiumView.clock.shouldAnimate = true;
+        // 设置信息球当前时间
+        const currTime = new Date();
+        this.cesiumView.clock.currentTime = Cesium.JulianDate.fromDate(new Date(currTime.setHours(currTime.getHours() + 8)));
 
 
         // const titleset = this.cesiumView.scene.primitives.add(new Cesium.Cesium3DTileset({
