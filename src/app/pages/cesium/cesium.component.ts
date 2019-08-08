@@ -15,6 +15,8 @@ export class CesiumComponent implements OnInit {
 
     private cesiumView = null;
 
+    private rotation = Cesium.Math.toRadians(30);
+
     // 天地图的密钥
     private tdtAccessToken = '5685d82109cd055413fd7e3815b827be';
 
@@ -38,6 +40,10 @@ export class CesiumComponent implements OnInit {
             showRenderLoopErrors: false, // 如果设为true，将在一个HTML面板中显示错误信息
             // imageryProviderViewModels: [imgTdtSl, imgTdtYx], // 图层列表
             // selectedImageryProviderViewModel: imgTdtYx // 默认图层
+            // terrainProvider: Cesium.createWorldTerrain({
+            //     requestVertexNormals: true, // 添加地形的光线
+            //     requestWaterMask: true, // 添加地形中的水
+            // })
         });
 
         // 去除版权信息
@@ -96,7 +102,7 @@ export class CesiumComponent implements OnInit {
         // 设置图层列表
         this.cesiumView.baseLayerPicker.viewModel.imageryProviderViewModels = providerViewModels;
         // 设置默认图层
-        this.cesiumView.baseLayerPicker.viewModel.selectedImagery = providerViewModels[1];
+        this.cesiumView.baseLayerPicker.viewModel.selectedImagery = providerViewModels[0];
         // 开启太阳和月亮的日照
         this.cesiumView.scene.globe.enableLighting = true;
         // 启动信息球时间
@@ -105,6 +111,110 @@ export class CesiumComponent implements OnInit {
         const currTime = new Date();
         this.cesiumView.clock.currentTime = Cesium.JulianDate.fromDate(new Date(currTime.setHours(currTime.getHours() + 8)));
 
+        const logoEntity = this.cesiumView.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(120.754587, 31.276233),
+            label: {
+                text: 'Label on top of scaling billboard',
+                pixelOffset: new Cesium.Cartesian3(0.0, 80),
+                fillColor: Cesium.Color.BLUE
+            },
+            billboard: {
+                image: './assets/images/logo.png',
+                show: true,
+                scaleByDistance : new Cesium.NearFarScalar(1.5e2, 2.0, 1.5e7, 0.5),
+                scale: 0.1
+            }
+        });
+        this.cesiumView.zoomTo(logoEntity);
+
+        const labelEntity = this.cesiumView.entities.add({
+            label : {
+                show : false,
+                showBackground : true,
+                font : '14px monospace',
+                horizontalOrigin : Cesium.HorizontalOrigin.LEFT,
+                verticalOrigin : Cesium.VerticalOrigin.TOP,
+                pixelOffset : new Cesium.Cartesian2(15, 0)
+            }
+        });
+
+        // 获取鼠标动作对象
+        const handler = new Cesium.ScreenSpaceEventHandler(this.cesiumView.scene.canvas);
+        // 设置鼠标移动的处理函数
+        handler.setInputAction(function(movement) {
+            // 鼠标移动是否在对象内移动
+            let foundPosition = false;
+            // 获取当前鼠标所在位置的对象
+            const pickedPrimitive = this.cesiumView.scene.pick((movement.endPosition));
+            // 判断当前对象的id是否是logo
+            if (this.cesiumView.scene.pickPositionSupported && Cesium.defined(pickedPrimitive) && pickedPrimitive.id === logoEntity) {
+                // 获取当前位置的笛卡尔坐标对象
+                const cartesian = this.cesiumView.scene.pickPosition(movement.endPosition);
+                if (Cesium.defined(cartesian)) {
+                    const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+                    const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2);
+                    const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2);
+                    const heightString = cartographic.height.toFixed(2);
+
+                    labelEntity.position = cartesian;
+                    labelEntity.label.show = true;
+                    labelEntity.label.text =
+                        'Lon: ' + ('   ' + longitudeString).slice(-7) + '\u00B0' +
+                        '\nLat: ' + ('   ' + latitudeString).slice(-7) + '\u00B0' +
+                        '\nAlt: ' + ('   ' + heightString).slice(-7) + 'm';
+
+                    labelEntity.label.eyeOffset = new Cesium.Cartesian3(
+                        0.0, 0.0, -cartographic.height * (this.cesiumView.scene.mode === Cesium.SceneMode.SCENE2D ? 1.5 : 1.0));
+
+                    foundPosition = true;
+                }
+            }
+            if (!foundPosition) {
+                labelEntity.label.show = false;
+            }
+        }.bind(this), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+        // const blueBox = this.cesiumView.entities.add({
+        //     name: 'Blue Box',
+        //     position: Cesium.Cartesian3.fromDegrees(120.757637, 31.262359),
+        //     box: {
+        //         dimensions: new Cesium.Cartesian3(40000.0, 30000.0, 50000.0),
+        //         material: Cesium.Color.BLUE.withAlpha(0.5),
+        //         outline: true,
+        //         outlineColor: Cesium.Color.BLACK,
+        //         outlineWidth: 20
+        //     }
+        // });
+
+
+
+        // const geocachePromise = Cesium.GeoJsonDataSource.load('./assets/simplestyles.geojson', {
+        //     clampToGround: true
+        // });
+        // geocachePromise.then(function(dataSource) {
+        //     this.cesiumView.dataSources.add(dataSource);
+        //
+        //     const geocacheEntities = dataSource.entities.values;
+        //     for (const entity of geocacheEntities) {
+        //         if (Cesium.defined(entity.billboard)) {
+        //             entity.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+        //             entity.label = undefined;
+        //             entity.billboard.distanceDisplayCondition = new Cesium.DistanceDisplayCondition(10.0, 2000000.0);
+        //
+        //             const cartographicPosition = Cesium.Cartographic.fromCartesian(entity.position.getValue(Cesium.JulianDate.now()));
+        //             const longitude = Cesium.Math.toDegrees(cartographicPosition.longitude);
+        //             const latitude = Cesium.Math.toDegrees(cartographicPosition.latitude);
+        //             const description = '<table class="cesium-infoBox-defaultTable cesium-infoBox-defaultTable-lighter"><tbody>' +
+        //                 '<tr><th>' + 'Longitude' + '</th><td>' + longitude.toFixed(5) + '</td></tr>' +
+        //                 '<tr><th>' + 'Latitude' + '</th><td>' + latitude.toFixed(5) + '</td></tr>' +
+        //                 '</tbody></table>';
+        //             entity.description = description;
+        //         }
+        //     }
+        // }.bind(this));
+        //
+        // this.cesiumView.zoomTo(geocachePromise);
+        // this.cesiumView.zoomTo(this.cesiumView.entities);
 
         // const titleset = this.cesiumView.scene.primitives.add(new Cesium.Cesium3DTileset({
         //     url: Cesium.IonResource.fromAssetId(34834)
@@ -129,5 +239,10 @@ export class CesiumComponent implements OnInit {
     //         return Cesium.Color.White;
     //     }
     // }
+
+    getRotationValue() {
+        this.rotation += 0.005;
+        return this.rotation;
+    }
 
 }
