@@ -48,6 +48,8 @@ export class CesiumComponent implements OnInit {
 
         // 去除版权信息
         this.cesiumView._cesiumWidget._creditContainer.style.display = 'none';
+        // 显示FPS
+        this.cesiumView.scene.debugShowFramesPerSecond = true;
 
         // 创建天地图矢量
         const imgTdtSl = new Cesium.ProviderViewModel({
